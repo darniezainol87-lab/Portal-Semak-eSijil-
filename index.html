@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>PORTAL SEMAK E-SIJIL</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:url("background.png") center/cover;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.box{
+width:90%;
+max-width:520px;
+padding:30px;
+background:rgba(0,0,0,.75);
+border-radius:20px;
+text-align:center;
+color:white;
+}
+
+.logo{
+width:150px;
+margin-bottom:15px;
+}
+
+input{
+width:100%;
+padding:16px;
+margin:15px 0;
+border:none;
+border-radius:10px;
+}
+
+button{
+width:100%;
+padding:16px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.card{
+margin-top:20px;
+padding:20px;
+background:#111;
+border-radius:15px;
+}
+
+.download{
+display:inline-block;
+padding:12px 20px;
+background:#00bfff;
+color:white;
+text-decoration:none;
+border-radius:10px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<audio id="successSound">
+<source src="success.mp3">
+</audio>
+
+<div class="box">
+
+<img src="logo.png" class="logo">
+
+<h2>PORTAL SEMAK E-SIJIL</h2>
+
+<p>MULTI EVENT SYSTEM</p>
+
+<input
+id="ic"
+placeholder="MASUKKAN NO IC">
+
+<button onclick="semak()">
+
+SEMAK SIJIL
+
+</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbyPPzQJ3RJFeM_v-1pbs3LP2oZrv_CcKsnrCYGZo6A8IIJG8F90EOF71xsIXQDFi0oU5w/exec";
+
+async function semak(){
+
+const result=
+document.getElementById(
+"result"
+);
+
+const ic=
+document.getElementById(
+"ic"
+)
+.value
+.trim();
+
+if(!ic){
+
+result.innerHTML=
+`
+<div class='card'>
+Masukkan IC
+</div>
+`;
+
+return;
+
+}
+
+try{
+
+result.innerHTML=
+`
+<div class='card'>
+Mencari...
+</div>
+`;
+
+const event=
+new URLSearchParams(
+location.search
+)
+.get("event")
+||
+"lextai";
+
+const res=
+await fetch(
+API+
+"?event="+
+event+
+"&ic="+
+ic
+);
+
+const data=
+await res.json();
+
+if(
+data.success
+&&
+data.results
+&&
+data.results.length
+){
+
+const user=
+data.results[0];
+
+document
+.getElementById(
+"successSound"
+)
+.play()
+.catch(()=>{});
+
+result.innerHTML=
+`
+
+<div class="card">
+
+<h2>
+
+${user.nama}
+
+</h2>
+
+<p>
+
+${user.program}
+
+</p>
+
+<a
+class="download"
+href="${user.pdf}"
+target="_blank"
+>
+
+MUAT TURUN SIJIL
+
+</a>
+
+</div>
+
+`;
+
+}else{
+
+result.innerHTML=
+`
+
+<div class="card">
+
+SIJIL TIDAK DIJUMPAI
+
+</div>
+
+`;
+
+}
+
+}catch(e){
+
+console.log(e);
+
+result.innerHTML=
+`
+
+<div class="card">
+
+RALAT API
+
+</div>
+
+`;
+
+}
+
+}
+
+const auto=
+new URLSearchParams(
+location.search
+)
+.get("ic");
+
+if(auto){
+
+document
+.getElementById(
+"ic"
+)
+.value=
+auto;
+
+setTimeout(
+semak,
+500
+);
+
+}
+
+</script>
+
+</body>
+</html>
